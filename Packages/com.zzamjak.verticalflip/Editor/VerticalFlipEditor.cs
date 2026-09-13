@@ -135,8 +135,35 @@ namespace CAT.VerticalFlip
         private SerializedProperty lineWidthProperty;
         private SerializedProperty useLowQualityOnMobileProperty;
 
+        /// <summary>
+        /// 대상이 살아 있는지. 플레이 모드 진입이나 도메인 리로드 직후에는
+        /// Editor 가 먼저 살아나고 대상 오브젝트가 아직 복구되지 않은 상태가 될 수 있다.
+        /// </summary>
+        private bool HasValidTarget
+            => targets != null && targets.Length > 0 && targets[0] != null;
+
         private void OnEnable()
         {
+            // 여기서 serializedObject 에 바로 접근하면 대상이 없을 때
+            // SerializedObjectNotCreatableException 이 난다. 캐싱은 실패해도 그냥 두고
+            // 실제로 그릴 때 다시 시도한다.
+            TryCacheProperties();
+
+            // 프리뷰 구동은 static 드라이버가 맡는다. 여기서는 인스펙터 갱신만 담당한다
+            EditorApplication.update += RepaintWhilePreviewing;
+        }
+
+        /// <summary>
+        /// 직렬화 프로퍼티를 캐싱한다. 대상이 아직 없으면 조용히 실패하고 다음 호출에서 재시도한다.
+        /// </summary>
+        private bool TryCacheProperties()
+        {
+            if (!HasValidTarget)
+                return false;
+
+            if (firstSpriteProperty != null)
+                return true;
+
             firstSpriteProperty = serializedObject.FindProperty("firstSprite");
             secondSpriteProperty = serializedObject.FindProperty("secondSprite");
             sliceCountProperty = serializedObject.FindProperty("sliceCount");
@@ -147,9 +174,7 @@ namespace CAT.VerticalFlip
             lineColorProperty = serializedObject.FindProperty("lineColor");
             lineWidthProperty = serializedObject.FindProperty("lineWidth");
             useLowQualityOnMobileProperty = serializedObject.FindProperty("useLowQualityOnMobile");
-
-            // 프리뷰 구동은 static 드라이버가 맡는다. 여기서는 인스펙터 갱신만 담당한다
-            EditorApplication.update += RepaintWhilePreviewing;
+            return true;
         }
 
         private void OnDisable()
@@ -157,7 +182,8 @@ namespace CAT.VerticalFlip
             EditorApplication.update -= RepaintWhilePreviewing;
         }
 
-        private bool IsPreviewing => VerticalFlipPreviewDriver.IsRunning(target as VerticalFlip);
+        private bool IsPreviewing
+            => HasValidTarget && VerticalFlipPreviewDriver.IsRunning(target as VerticalFlip);
 
         private void RepaintWhilePreviewing()
         {
@@ -279,6 +305,10 @@ namespace CAT.VerticalFlip
 
         public override void OnInspectorGUI()
         {
+            // 대상이 사라진 프레임에는 그리지 않는다
+            if (!TryCacheProperties())
+                return;
+
             serializedObject.Update();
 
             VerticalFlip flipComponent = (VerticalFlip)target;

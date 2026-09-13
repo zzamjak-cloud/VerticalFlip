@@ -5,6 +5,16 @@
 포맷은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/)를 따르며,
 버전은 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## [1.0.1] - 2026-09-13
+
+### Fixed
+
+- 인스펙터에 `VerticalFlip` 이 선택된 상태로 플레이 모드에 진입하거나 빠져나올 때
+  `SerializedObjectNotCreatableException: Object at index 0 is null` 이 발생하던 문제.
+  도메인 리로드 직후 대상 오브젝트가 복구되기 전에 `VerticalFlipEditor.OnEnable` 이
+  `serializedObject` 에 접근한 것이 원인입니다. 직렬화 프로퍼티 캐싱을 대상이 유효해질 때까지
+  지연하고, 대상이 없는 프레임에는 인스펙터를 그리지 않도록 고쳤습니다.
+
 ## [1.0.0] - 2026-09-13
 
 VerticalFlip 기능을 독립 UPM 패키지로 분리한 최초 릴리스입니다.

@@ -1,7 +1,7 @@
 {
   "name": "com.zzamjak.verticalflip",
   "displayName": "VerticalFlip",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "unity": "6000.0",
   "description": "옥외 광고판처럼 두 스프라이트를 세로 슬라이스 단위로 번갈아 뒤집는 플립 애니메이션 패키지입니다. SpriteRenderer(월드)와 uGUI Image(Canvas) 양쪽을 같은 컴포넌트 하나로 지원하며, 회전 연산 전체가 셰이더에서 처리되어 메시 재생성이나 레이아웃 갱신이 발생하지 않습니다. 슬라이스 개수·플립 시간·슬라이스 간 지연·구분선을 인스펙터에서 조절할 수 있고, 스프라이트 아틀라스 UV 영역을 인식하며, 모바일 저사양 모드와 씬 뷰 실시간 프리뷰를 제공합니다.",
   "documentationUrl": "https://github.com/zzamjak-cloud/VerticalFlip",
